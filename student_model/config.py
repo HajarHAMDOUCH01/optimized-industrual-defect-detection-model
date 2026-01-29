@@ -35,7 +35,7 @@ class Config:
     NUM_CLASSES = 6  # NEU dataset has 6 defect types
     
     # Student model architecture type
-    # Options: 'efficientnet_lite', 'mobilenet_v3', 'shufflenet', 'custom'
+    # Options: 'efficientnet_lite', 'mobilenet_v3', 'shufflenet', 'custom', 'tinynet'
     STUDENT_ARCHITECTURE = 'mobilenet_v3'
     
     # Model variant (for standard architectures)
@@ -51,6 +51,44 @@ class Config:
     
     # Use pretrained weights (ImageNet initialization)
     USE_PRETRAINED = True
+    
+    # -------------------------------------------------------------------------
+    # Custom TinyNet Architecture Parameters
+    # -------------------------------------------------------------------------
+    
+    # Initial number of channels (for custom TinyNet)
+    INITIAL_CHANNELS = 24
+    
+    # Channel expansion stages (multipliers for each stage)
+    CHANNEL_STAGES = [1, 2, 4, 8]  # Results in: 24, 48, 96, 192
+    
+    # Number of blocks per stage
+    BLOCKS_PER_STAGE = [2, 3, 4, 3]
+    
+    # Use squeeze-and-excitation blocks
+    USE_SE = True
+    
+    # SE reduction ratio
+    SE_REDUCTION = 4
+    
+    # Activation function for custom models
+    # Options: 'relu', 'relu6', 'swish', 'hardswish', 'gelu'
+    ACTIVATION = 'relu6'
+    
+    # Use batch normalization
+    USE_BATCH_NORM = True
+    
+    # Batch norm momentum
+    BN_MOMENTUM = 0.1
+    
+    # Batch norm epsilon
+    BN_EPS = 1e-5
+    
+    # Width multiplier (for scaling model width)
+    WIDTH_MULTIPLIER = 1.0
+    
+    # Depth multiplier (for scaling model depth)
+    DEPTH_MULTIPLIER = 1.0
     
     # =========================================================================
     # DATA PROCESSING
@@ -458,6 +496,31 @@ class Config:
             'mixed_precision': cls.MIXED_PRECISION,
             'label_smoothing': cls.LABEL_SMOOTHING,
             'gradient_clip_norm': cls.GRADIENT_CLIP_NORM
+        }
+    
+    @classmethod
+    def get_model_config(cls) -> dict:
+        """
+        Get model architecture configuration
+        
+        Returns:
+            Dictionary of model settings
+        """
+        return {
+            'architecture': cls.STUDENT_ARCHITECTURE,
+            'variant': cls.MODEL_VARIANT,
+            'num_classes': cls.NUM_CLASSES,
+            'image_size': cls.IMAGE_SIZE,
+            'dropout_rate': cls.DROPOUT_RATE,
+            'use_pretrained': cls.USE_PRETRAINED,
+            'initial_channels': cls.INITIAL_CHANNELS,
+            'channel_stages': cls.CHANNEL_STAGES,
+            'blocks_per_stage': cls.BLOCKS_PER_STAGE,
+            'use_se': cls.USE_SE,
+            'se_reduction': cls.SE_REDUCTION,
+            'activation': cls.ACTIVATION,
+            'width_multiplier': cls.WIDTH_MULTIPLIER,
+            'depth_multiplier': cls.DEPTH_MULTIPLIER
         }
 
 
