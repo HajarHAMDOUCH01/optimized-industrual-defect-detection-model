@@ -25,7 +25,6 @@ from dataset import DefectDataset, get_transforms
 
 
 def evaluate_test_set(
-    model,
     test_loader,
     class_names,
     device='cpu',
@@ -35,7 +34,6 @@ def evaluate_test_set(
     Evaluate model on test set
     
     Args:
-        model: Trained model
         test_loader: Test data loader
         class_names: List of class names
         device: Device to run on
@@ -44,135 +42,67 @@ def evaluate_test_set(
     Returns:
         Dictionary with all metrics
     """
-    model.eval()
-    
+
+    import onnxruntime as ort
+
+    providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] \
+    if torch.cuda.is_available() else ['CPUExecutionProvider']
+
+    session = ort.InferenceSession(
+    "/kaggle/working/tinydefectnet_student/checkpoints/student_model.onnx",
+    providers=providers
+    )
+
+    input_name = session.get_inputs()[0].name
+
+
     all_preds = []
     all_labels = []
     all_probs = []
-    
-    print("Evaluating on test set...")
-    
-    with torch.no_grad():
-        for images, labels in tqdm(test_loader, desc="Testing"):
-            images = images.to(device)
-            labels = labels.to(device)
-            
-            # Forward pass
-            logits = model(images)
-            probs = F.softmax(logits, dim=1)
-            preds = torch.argmax(probs, dim=1)
-            
-            # Collect predictions
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(labels.cpu().numpy())
-            all_probs.extend(probs.cpu().numpy())
-    
-    # Convert to numpy arrays
+
+    print("Evaluating ONNX model on test set...")
+
+    for images, labels in tqdm(test_loader, desc="Testing (ONNX)"):
+
+        # PyTorch → NumPy
+        images_np = images.numpy()  # shape: [B, 3, 224, 224]
+
+        # ONNX inference
+        outputs = session.run(None, {input_name: images_np})
+        logits = outputs[0]  # shape: [B, num_classes]
+
+        # Softmax (NumPy)
+        exp_logits = np.exp(logits - np.max(logits, axis=1, keepdims=True))
+        probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+        preds = np.argmax(probs, axis=1)
+
+        all_preds.extend(preds)
+        all_labels.extend(labels.numpy())
+        all_probs.extend(probs)
+
     all_preds = np.array(all_preds)
     all_labels = np.array(all_labels)
     all_probs = np.array(all_probs)
-    
-    # Calculate metrics
+
+    # --- metrics (unchanged) ---
     accuracy = accuracy_score(all_labels, all_preds)
     precision_macro = precision_score(all_labels, all_preds, average='macro')
-    precision_weighted = precision_score(all_labels, all_preds, average='weighted')
     recall_macro = recall_score(all_labels, all_preds, average='macro')
-    recall_weighted = recall_score(all_labels, all_preds, average='weighted')
     f1_macro = f1_score(all_labels, all_preds, average='macro')
-    f1_weighted = f1_score(all_labels, all_preds, average='weighted')
-    
-    # Per-class metrics
-    precision_per_class = precision_score(all_labels, all_preds, average=None)
-    recall_per_class = recall_score(all_labels, all_preds, average=None)
-    f1_per_class = f1_score(all_labels, all_preds, average=None)
-    
-    # Confusion matrix
     cm = confusion_matrix(all_labels, all_preds)
-    
-    # Classification report
-    report = classification_report(
-        all_labels,
-        all_preds,
-        target_names=class_names,
-        digits=4
-    )
-    
-    # Compile results
-    results = {
-        'overall_metrics': {
-            'accuracy': float(accuracy),
-            'precision_macro': float(precision_macro),
-            'precision_weighted': float(precision_weighted),
-            'recall_macro': float(recall_macro),
-            'recall_weighted': float(recall_weighted),
-            'f1_macro': float(f1_macro),
-            'f1_weighted': float(f1_weighted),
-        },
-        'per_class_metrics': {
-            class_names[i]: {
-                'precision': float(precision_per_class[i]),
-                'recall': float(recall_per_class[i]),
-                'f1_score': float(f1_per_class[i])
-            }
-            for i in range(len(class_names))
-        },
-        'confusion_matrix': cm.tolist(),
-        'num_samples': len(all_labels)
+
+    print(f"\nAccuracy: {accuracy:.4f}")
+    print(f"Precision (macro): {precision_macro:.4f}")
+    print(f"Recall (macro): {recall_macro:.4f}")
+    print(f"F1 (macro): {f1_macro:.4f}")
+
+    return {
+        "accuracy": accuracy,
+        "precision_macro": precision_macro,
+        "recall_macro": recall_macro,
+        "f1_macro": f1_macro,
+        "confusion_matrix": cm.tolist()
     }
-    
-    # Print results
-    print("\n" + "="*80)
-    print("TEST SET EVALUATION RESULTS")
-    print("="*80)
-    print(f"\nTotal test samples: {len(all_labels)}")
-    print(f"\nOverall Metrics:")
-    print(f"  Accuracy:           {accuracy:.4f} ({accuracy*100:.2f}%)")
-    print(f"  Precision (macro):  {precision_macro:.4f}")
-    print(f"  Precision (weighted): {precision_weighted:.4f}")
-    print(f"  Recall (macro):     {recall_macro:.4f}")
-    print(f"  Recall (weighted):  {recall_weighted:.4f}")
-    print(f"  F1-Score (macro):   {f1_macro:.4f}")
-    print(f"  F1-Score (weighted): {f1_weighted:.4f}")
-    
-    print(f"\n{'-'*80}")
-    print("Per-Class Metrics:")
-    print(f"{'-'*80}")
-    print(f"{'Class':<20} {'Precision':>10} {'Recall':>10} {'F1-Score':>10}")
-    print(f"{'-'*80}")
-    for i, cls_name in enumerate(class_names):
-        print(f"{cls_name:<20} {precision_per_class[i]:>10.4f} {recall_per_class[i]:>10.4f} {f1_per_class[i]:>10.4f}")
-    print(f"{'-'*80}")
-    
-    print("\nDetailed Classification Report:")
-    print(report)
-    
-    # Save results
-    save_dir = Path(save_dir)
-    save_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Save metrics to JSON
-    with open(save_dir / 'test_metrics.json', 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"\n✓ Metrics saved to {save_dir / 'test_metrics.json'}")
-    
-    # Save classification report
-    with open(save_dir / 'classification_report.txt', 'w') as f:
-        f.write(report)
-    print(f"✓ Classification report saved to {save_dir / 'classification_report.txt'}")
-    
-    # Plot confusion matrix
-    plot_confusion_matrix(cm, class_names, save_dir / 'confusion_matrix.png')
-    
-    # Plot per-class metrics
-    plot_per_class_metrics(
-        class_names,
-        precision_per_class,
-        recall_per_class,
-        f1_per_class,
-        save_dir / 'per_class_metrics.png'
-    )
-    
-    return results
 
 
 def plot_confusion_matrix(cm, class_names, save_path):
