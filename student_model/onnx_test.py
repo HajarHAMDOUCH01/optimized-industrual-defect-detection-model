@@ -251,7 +251,7 @@ if __name__ == "__main__":
     from torch.utils.data import DataLoader
     
     # Configuration
-    CHECKPOINT_PATH = "/kaggle/working/tinydefectnet_student/checkpoints/best_student.pth"
+    CHECKPOINT_PATH = "/kaggle/working/tinydefectnet_student/checkpoints/student_model.onnx"
     TEST_DIR = Path("/kaggle/input/neu-metal-surface-defects-data/NEU Metal Surface Defects Data/test")
     NUM_CLASSES = 6
     BATCH_SIZE = 32
