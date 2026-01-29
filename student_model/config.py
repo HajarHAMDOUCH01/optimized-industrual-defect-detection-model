@@ -124,17 +124,37 @@ class Config:
     # Pin memory for faster GPU transfer
     PIN_MEMORY = True
     
-    # Data augmentation settings
+    # Use stratified split for train/val (maintains class distribution)
+    STRATIFY = True
+    
+    # -------------------------------------------------------------------------
+    # Data Augmentation Parameters
+    # -------------------------------------------------------------------------
+    
+    # Rotation augmentation
+    AUG_ROTATION = 15  # Degrees
+    
+    # Flip augmentation
+    AUG_HORIZONTAL_FLIP = True
+    AUG_VERTICAL_FLIP = False
+    
+    # Color jitter augmentation
+    AUG_BRIGHTNESS = 0.2
+    AUG_CONTRAST = 0.2
+    AUG_SATURATION = 0.1
+    AUG_HUE = 0.05
+    
+    # Legacy: Data augmentation settings dictionary (for reference)
     TRAIN_AUGMENTATION = {
         'random_resized_crop': True,
-        'horizontal_flip': True,
-        'vertical_flip': False,
-        'rotation_degrees': 15,
+        'horizontal_flip': AUG_HORIZONTAL_FLIP,
+        'vertical_flip': AUG_VERTICAL_FLIP,
+        'rotation_degrees': AUG_ROTATION,
         'color_jitter': {
-            'brightness': 0.2,
-            'contrast': 0.2,
-            'saturation': 0.1,
-            'hue': 0.05
+            'brightness': AUG_BRIGHTNESS,
+            'contrast': AUG_CONTRAST,
+            'saturation': AUG_SATURATION,
+            'hue': AUG_HUE
         },
         'random_erasing': {
             'probability': 0.1,
@@ -347,6 +367,15 @@ class Config:
         print(f"  Batch Size: {cls.BATCH_SIZE}")
         print(f"  Val Split: {cls.VAL_SPLIT}")
         print(f"  Num Workers: {cls.NUM_WORKERS}")
+        print(f"  Stratified Split: {cls.STRATIFY}")
+        print(f"\n[DATA AUGMENTATION]")
+        print(f"  Rotation: {cls.AUG_ROTATION}°")
+        print(f"  Horizontal Flip: {cls.AUG_HORIZONTAL_FLIP}")
+        print(f"  Vertical Flip: {cls.AUG_VERTICAL_FLIP}")
+        print(f"  Brightness: {cls.AUG_BRIGHTNESS}")
+        print(f"  Contrast: {cls.AUG_CONTRAST}")
+        print(f"  Saturation: {cls.AUG_SATURATION}")
+        print(f"  Hue: {cls.AUG_HUE}")
         
         print("\n[TRAINING]")
         print(f"  Epochs: {cls.EPOCHS}")
@@ -560,6 +589,45 @@ class Config:
             'bn_eps': cls.BN_EPS,
             'width_multiplier': cls.WIDTH_MULTIPLIER,
             'depth_multiplier': cls.DEPTH_MULTIPLIER
+        }
+    
+    @classmethod
+    def get_augmentation_config(cls) -> dict:
+        """
+        Get data augmentation configuration
+        
+        Returns:
+            Dictionary of augmentation settings
+        """
+        return {
+            'rotation': cls.AUG_ROTATION,
+            'horizontal_flip': cls.AUG_HORIZONTAL_FLIP,
+            'vertical_flip': cls.AUG_VERTICAL_FLIP,
+            'brightness': cls.AUG_BRIGHTNESS,
+            'contrast': cls.AUG_CONTRAST,
+            'saturation': cls.AUG_SATURATION,
+            'hue': cls.AUG_HUE,
+            'normalize_mean': cls.NORMALIZE_MEAN,
+            'normalize_std': cls.NORMALIZE_STD
+        }
+    
+    @classmethod
+    def get_data_config(cls) -> dict:
+        """
+        Get data loading configuration
+        
+        Returns:
+            Dictionary of data settings
+        """
+        return {
+            'data_root': str(cls.DATA_ROOT),
+            'train_dir': str(cls.TRAIN_DIR),
+            'val_dir': str(cls.VAL_DIR),
+            'batch_size': cls.BATCH_SIZE,
+            'val_split': cls.VAL_SPLIT,
+            'num_workers': cls.NUM_WORKERS,
+            'pin_memory': cls.PIN_MEMORY,
+            'stratify': cls.STRATIFY
         }
 
 
