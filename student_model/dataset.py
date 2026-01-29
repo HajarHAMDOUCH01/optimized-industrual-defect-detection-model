@@ -76,7 +76,7 @@ def get_transforms(phase: str = 'train') -> transforms.Compose:
     
     if phase == 'train':
         transform = transforms.Compose([
-            transforms.Resize((Config.IMAGE_SIZE, Config.IMAGE_SIZE)),
+            transforms.Resize(Config.IMAGE_SIZE),
             transforms.RandomRotation(
                 degrees=Config.AUG_ROTATION,
                 interpolation=transforms.InterpolationMode.BILINEAR
