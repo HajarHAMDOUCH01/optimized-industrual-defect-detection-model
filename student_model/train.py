@@ -116,41 +116,37 @@ def create_scheduler(optimizer, num_epochs: int):
     return scheduler
 
 
-def export_to_onnx(model: nn.Module, save_path: Path, input_size=(1, 3, 224, 224)):
-    """Export model to ONNX format"""
-    try:
-        import onnx
-        
-        model.eval()
-        dummy_input = torch.randn(input_size)
-        
-        torch.onnx.export(
-            model,
-            dummy_input,
-            save_path,
-            export_params=True,
-            opset_version=11,
-            input_names=['input'],
-            output_names=['output'],
-            dynamic_axes={
-                'input': {0: 'batch_size'},
-                'output': {0: 'batch_size'}
-            }
-        )
-        
-        # Verify ONNX model
-        onnx_model = onnx.load(save_path)
-        onnx.checker.check_model(onnx_model)
-        
-        print(f"✓ Model exported to ONNX: {save_path}")
-        return True
+def export_to_onnx(model, save_path, input_size=(1, 3, 224, 224)):
+    """Export model to ONNX (fixed version)"""
+    import onnx
     
-    except ImportError:
-        print("✗ ONNX not available. Install with: pip install onnx")
-        return False
-    except Exception as e:
-        print(f"✗ ONNX export failed: {e}")
-        return False
+    # IMPORTANT: Move model to CPU for ONNX export
+    model = model.cpu()
+    model.eval()
+    
+    dummy_input = torch.randn(input_size)
+    
+    torch.onnx.export(
+        model,
+        dummy_input,
+        save_path,
+        export_params=True,
+        opset_version=11,
+        input_names=['input'],
+        output_names=['output'],
+        dynamic_axes={
+            'input': {0: 'batch_size'},
+            'output': {0: 'batch_size'}
+        }
+    )
+    
+    # Verify
+    onnx_model = onnx.load(save_path)
+    onnx.checker.check_model(onnx_model)
+    
+    print(f"✓ ONNX model exported to {save_path}")
+
+
 
 
 def main(args):
