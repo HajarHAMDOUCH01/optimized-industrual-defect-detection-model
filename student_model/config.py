@@ -66,7 +66,7 @@ class Config:
     CHANNEL_MULTIPLIERS = [1, 2, 4, 8]  # Same as CHANNEL_STAGES
     
     # Number of blocks per stage
-    BLOCKS_PER_STAGE = [2, 3, 4, 3]
+    NUM_BLOCKS_PER_STAGE = [2, 3, 4, 3]
     
     # Use squeeze-and-excitation blocks
     USE_SE = True
@@ -519,7 +519,7 @@ class Config:
             'initial_channels': cls.INITIAL_CHANNELS,
             'channel_stages': cls.CHANNEL_STAGES,
             'channel_multipliers': cls.CHANNEL_MULTIPLIERS,
-            'blocks_per_stage': cls.BLOCKS_PER_STAGE,
+            'num_blocks_per_stage': cls.NUM_BLOCKS_PER_STAGE,
             'use_se': cls.USE_SE,
             'se_reduction': cls.SE_REDUCTION,
             'activation': cls.ACTIVATION,
