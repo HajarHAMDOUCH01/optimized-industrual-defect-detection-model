@@ -62,6 +62,9 @@ class Config:
     # Channel expansion stages (multipliers for each stage)
     CHANNEL_STAGES = [1, 2, 4, 8]  # Results in: 24, 48, 96, 192
     
+    # Channel multipliers (alternative parameterization)
+    CHANNEL_MULTIPLIERS = [1, 2, 4, 8]  # Same as CHANNEL_STAGES
+    
     # Number of blocks per stage
     BLOCKS_PER_STAGE = [2, 3, 4, 3]
     
@@ -515,6 +518,7 @@ class Config:
             'use_pretrained': cls.USE_PRETRAINED,
             'initial_channels': cls.INITIAL_CHANNELS,
             'channel_stages': cls.CHANNEL_STAGES,
+            'channel_multipliers': cls.CHANNEL_MULTIPLIERS,
             'blocks_per_stage': cls.BLOCKS_PER_STAGE,
             'use_se': cls.USE_SE,
             'se_reduction': cls.SE_REDUCTION,
