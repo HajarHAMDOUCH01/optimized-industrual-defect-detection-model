@@ -4,7 +4,7 @@ from PIL import Image
 from torchvision import transforms
 
 # Load ONNX model
-session = ort.InferenceSession('student_model.onnx')
+session = ort.InferenceSession('/kaggle/working/tinydefectnet_student/checkpoints/student_model.onnx')
 
 class_names = ['crazing', 'inclusion', 'patches', 'pitted_surface', 'rolled-in_scale', 'scratches']
 
