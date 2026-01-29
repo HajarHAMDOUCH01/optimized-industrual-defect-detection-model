@@ -25,6 +25,8 @@ from dataset import DefectDataset, get_transforms
 
 
 def evaluate_test_set(
+    session,
+    input_name,
     test_loader,
     class_names,
     device='cpu',
@@ -43,17 +45,7 @@ def evaluate_test_set(
         Dictionary with all metrics
     """
 
-    import onnxruntime as ort
 
-    providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] \
-    if torch.cuda.is_available() else ['CPUExecutionProvider']
-
-    session = ort.InferenceSession(
-    "/kaggle/working/tinydefectnet_student/checkpoints/student_model.onnx",
-    providers=providers
-    )
-
-    input_name = session.get_inputs()[0].name
 
 
     all_preds = []
@@ -209,15 +201,17 @@ if __name__ == "__main__":
     
     # Load model
     print(f"\nLoading model...")
-    model = create_student_model(num_classes=NUM_CLASSES)
-    checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model.to(DEVICE)
-    model.eval()
-    
-    print(f"✓ Model loaded successfully")
-    print(f"  Training epoch: {checkpoint['epoch']}")
-    print(f"  Validation accuracy: {checkpoint['val_acc']:.2f}%")
+    import onnxruntime as ort
+
+    providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] \
+    if torch.cuda.is_available() else ['CPUExecutionProvider']
+
+    session = ort.InferenceSession(
+    "/kaggle/working/tinydefectnet_student/checkpoints/student_model.onnx",
+    providers=providers
+    )
+
+    input_name = session.get_inputs()[0].name
     
     # Create test dataset and loader
     print(f"\nLoading test dataset...")
@@ -245,7 +239,8 @@ if __name__ == "__main__":
     
     # Evaluate
     results = evaluate_test_set(
-        model=model,
+        session=session,
+        input_name=input_name,
         test_loader=test_loader,
         class_names=CLASS_NAMES,
         device=DEVICE,
