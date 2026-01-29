@@ -177,6 +177,10 @@ class Config:
     # Random seed for reproducibility
     SEED = 42
     
+    # Deterministic mode (slower but reproducible)
+    # Set to True for exact reproducibility, False for better performance
+    DETERMINISTIC = False
+    
     # Device
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     
@@ -353,6 +357,8 @@ class Config:
         print(f"  Mixed Precision: {cls.MIXED_PRECISION}")
         print(f"  Label Smoothing: {cls.LABEL_SMOOTHING}")
         print(f"  Gradient Clip: {cls.GRADIENT_CLIP_NORM}")
+        print(f"  Seed: {cls.SEED}")
+        print(f"  Deterministic: {cls.DETERMINISTIC}")
         print(f"  Device: {cls.DEVICE}")
         
         print("\n[KNOWLEDGE DISTILLATION]")
@@ -518,7 +524,10 @@ class Config:
             'scheduler': cls.SCHEDULER,
             'mixed_precision': cls.MIXED_PRECISION,
             'label_smoothing': cls.LABEL_SMOOTHING,
-            'gradient_clip_norm': cls.GRADIENT_CLIP_NORM
+            'gradient_clip_norm': cls.GRADIENT_CLIP_NORM,
+            'seed': cls.SEED,
+            'deterministic': cls.DETERMINISTIC,
+            'device': cls.DEVICE
         }
     
     @classmethod
