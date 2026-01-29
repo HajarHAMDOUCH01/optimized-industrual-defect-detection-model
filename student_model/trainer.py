@@ -128,7 +128,6 @@ class DistillationTrainer:
         """
         self.student.train()
         self.student = self.student.to("cuda")
-        print("yooooo", next(self.student.parameters()).device)
         if self.teacher is not None:
             self.teacher.eval()
         

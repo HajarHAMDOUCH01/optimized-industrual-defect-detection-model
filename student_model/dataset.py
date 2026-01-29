@@ -103,7 +103,7 @@ def get_transforms(phase: str = 'train') -> transforms.Compose:
         ])
     else:
         transform = transforms.Compose([
-            transforms.Resize((Config.IMAGE_SIZE, Config.IMAGE_SIZE)),
+            transforms.Resize(Config.IMAGE_SIZE),
             transforms.ToTensor(),
             transforms.Normalize(
                 mean=Config.NORMALIZE_MEAN,
