@@ -147,7 +147,7 @@ class DistillationTrainer:
             
             # Forward pass with mixed precision
             if self.mixed_precision:
-                with torch.cuda.amp.autocast(device_type='cuda', dtype=torch.float16):
+                with torch.cuda.amp.autocast():
                     student_logits = self.student(images)
                     
                     if self.use_kd:
