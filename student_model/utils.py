@@ -343,6 +343,7 @@ def test_robustness(
     with torch.no_grad():
         for images, targets in dataloader:
             images, targets = images.to(device), targets.to(device)
+            model = model.to(device)
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             clean_correct += (predicted == targets).sum().item()
