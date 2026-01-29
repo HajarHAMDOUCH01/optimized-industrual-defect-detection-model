@@ -125,9 +125,9 @@ class ConvBlock(nn.Module):
         x = self.act(x)
         x = self.dropout(x)
         return x
+from huggingface_hub import PyTorchModelHubMixin
 
-
-class TinyNet(nn.Module):
+class TinyNet(nn.Module, PyTorchModelHubMixin):
     """
     TinyNet: Lightweight CNN for industrial defect detection
     
