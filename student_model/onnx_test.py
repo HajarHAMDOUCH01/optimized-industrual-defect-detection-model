@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Complete Test Set Evaluation for TinyDefectNet
 Calculates accuracy, precision, recall, F1-score, and confusion matrix
