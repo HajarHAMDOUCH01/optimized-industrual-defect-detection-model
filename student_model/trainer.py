@@ -172,6 +172,8 @@ class DistillationTrainer:
                         hard_loss_val = loss.item()
                         soft_loss_val = 0.0
             else:
+                print("!!!!!!!!!!!!!!! student device : ")
+                print(next(self.student.parameters()).device)
                 student_logits = self.student(images)
                 
                 if self.use_kd:

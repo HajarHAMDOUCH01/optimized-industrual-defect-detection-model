@@ -202,7 +202,7 @@ class Config:
     DETERMINISTIC = False
     
     # Device
-    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    DEVICE = 'cuda'
     
     # =========================================================================
     # KNOWLEDGE DISTILLATION
