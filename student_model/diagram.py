@@ -668,7 +668,7 @@ class ArchitectureVisualizer:
 
 def create_architecture_diagram(
     model: nn.Module = None,
-    save_path: str = 'tinynet_architecture.html',
+    save_path: str = '/kaggle/working/tinynet_architecture.html',
     input_size: Tuple[int, int, int, int] = (1, 3, 224, 224)
 ) -> str:
     """
