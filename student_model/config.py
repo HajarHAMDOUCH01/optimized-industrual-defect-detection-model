@@ -66,7 +66,17 @@ class Config:
     CHANNEL_MULTIPLIERS = [1, 2, 4, 8]  # Same as CHANNEL_STAGES
     
     # Number of blocks per stage
+    BLOCKS_PER_STAGE = [2, 3, 4, 3]
+    
+    # Alternative name for number of blocks per stage (used in TinyNet)
     NUM_BLOCKS_PER_STAGE = [2, 3, 4, 3]
+    
+    # Use depthwise separable convolutions
+    USE_DEPTHWISE_SEPARABLE = True
+    
+    # Normalization type
+    # Options: 'batch_norm', 'group_norm', 'none'
+    NORMALIZATION = 'group_norm'
     
     # Use squeeze-and-excitation blocks
     USE_SE = True
@@ -317,6 +327,16 @@ class Config:
         print(f"  Image Size: {cls.IMAGE_SIZE}")
         print(f"  Dropout Rate: {cls.DROPOUT_RATE}")
         print(f"  Use Pretrained: {cls.USE_PRETRAINED}")
+        print(f"\n[TINYNET ARCHITECTURE]")
+        print(f"  Initial Channels: {cls.INITIAL_CHANNELS}")
+        print(f"  Channel Multipliers: {cls.CHANNEL_MULTIPLIERS}")
+        print(f"  Blocks Per Stage: {cls.NUM_BLOCKS_PER_STAGE}")
+        print(f"  Use Depthwise Separable: {cls.USE_DEPTHWISE_SEPARABLE}")
+        print(f"  Normalization: {cls.NORMALIZATION}")
+        print(f"  Activation: {cls.ACTIVATION}")
+        print(f"  Use SE Blocks: {cls.USE_SE}")
+        if cls.USE_SE:
+            print(f"  SE Reduction: {cls.SE_REDUCTION}")
         
         print("\n[DATA PROCESSING]")
         print(f"  Data Root: {cls.DATA_ROOT}")
@@ -519,10 +539,16 @@ class Config:
             'initial_channels': cls.INITIAL_CHANNELS,
             'channel_stages': cls.CHANNEL_STAGES,
             'channel_multipliers': cls.CHANNEL_MULTIPLIERS,
+            'blocks_per_stage': cls.BLOCKS_PER_STAGE,
             'num_blocks_per_stage': cls.NUM_BLOCKS_PER_STAGE,
+            'use_depthwise_separable': cls.USE_DEPTHWISE_SEPARABLE,
+            'normalization': cls.NORMALIZATION,
             'use_se': cls.USE_SE,
             'se_reduction': cls.SE_REDUCTION,
             'activation': cls.ACTIVATION,
+            'use_batch_norm': cls.USE_BATCH_NORM,
+            'bn_momentum': cls.BN_MOMENTUM,
+            'bn_eps': cls.BN_EPS,
             'width_multiplier': cls.WIDTH_MULTIPLIER,
             'depth_multiplier': cls.DEPTH_MULTIPLIER
         }
@@ -566,6 +592,42 @@ class EdgeDeviceConfig(Config):
     TARGET_PLATFORM = 'edge_tpu'
     BATCH_SIZE = 16
     IMAGE_SIZE = (192, 192)  # Smaller images for edge
+
+
+class TinyNetSmallConfig(Config):
+    """TinyNet configuration for smallest model"""
+    STUDENT_ARCHITECTURE = 'tinynet'
+    INITIAL_CHANNELS = 16
+    CHANNEL_MULTIPLIERS = [1, 2, 4, 6]
+    NUM_BLOCKS_PER_STAGE = [1, 2, 3, 2]
+    USE_DEPTHWISE_SEPARABLE = True
+    NORMALIZATION = 'group_norm'
+    DROPOUT_RATE = 0.1
+    MAX_PARAMS = 500_000
+
+
+class TinyNetMediumConfig(Config):
+    """TinyNet configuration for balanced model"""
+    STUDENT_ARCHITECTURE = 'tinynet'
+    INITIAL_CHANNELS = 24
+    CHANNEL_MULTIPLIERS = [1, 2, 4, 8]
+    NUM_BLOCKS_PER_STAGE = [2, 3, 4, 3]
+    USE_DEPTHWISE_SEPARABLE = True
+    NORMALIZATION = 'group_norm'
+    DROPOUT_RATE = 0.2
+    MAX_PARAMS = 2_000_000
+
+
+class TinyNetLargeConfig(Config):
+    """TinyNet configuration for larger model (more accuracy)"""
+    STUDENT_ARCHITECTURE = 'tinynet'
+    INITIAL_CHANNELS = 32
+    CHANNEL_MULTIPLIERS = [1, 2, 4, 8]
+    NUM_BLOCKS_PER_STAGE = [3, 4, 6, 4]
+    USE_DEPTHWISE_SEPARABLE = True
+    NORMALIZATION = 'batch_norm'
+    DROPOUT_RATE = 0.2
+    MAX_PARAMS = 5_000_000
 
 
 if __name__ == "__main__":
