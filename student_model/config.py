@@ -192,7 +192,7 @@ class Config:
     LABEL_SMOOTHING = 0.1
     
     # Mixed precision training
-    MIXED_PRECISION = True
+    MIXED_PRECISION = False
     
     # Random seed for reproducibility
     SEED = 42

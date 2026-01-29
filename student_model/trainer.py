@@ -51,7 +51,7 @@ class DistillationTrainer:
         use_kd: bool = True,
         temperature: float = 4.0,
         alpha: float = 0.7,
-        mixed_precision: bool = True
+        mixed_precision: bool = False
     ):
         """
         Args:
