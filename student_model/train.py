@@ -32,9 +32,6 @@ def load_teacher_model(checkpoint_path: Path, num_classes: int, device: str):
     print(f"\nLoading teacher model from {checkpoint_path}...")
     
     try:
-        # Import teacher model architecture
-        # NOTE: This assumes teacher model is in parent directory
-        # Adjust path as needed for your setup
         sys.path.insert(0, str(Path(__file__).parent.parent / "teacher"))
         from model import TeacherModel
         
@@ -119,8 +116,6 @@ def create_scheduler(optimizer, num_epochs: int):
 def export_to_onnx(model, save_path, input_size=(1, 3, 224, 224)):
     """Export model to ONNX (fixed version)"""
     import onnx
-    
-    # IMPORTANT: Move model to CPU for ONNX export
     model = model.cpu()
     model.eval()
     
